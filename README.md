@@ -8,7 +8,7 @@ DefMulti: (contract: (T) -> W,
            dispatch: (T) -> D) -> Multi
 ```
 
-Define a multi-method, should provide contract and dispatch. Contract should be a sample function, usefull for defining the signature of the multi-method, it is not necesary to provide real computation for this function, so providing default values is not needed. Dispatch function computes a value used by the multi-method to choose the implementation to invoke.
+Define a multi-method, should provide contract and dispatch. Contract should be a sample function, usefull for defining the signature of the multi-method, it is not necesary to implement anithing for this function since it won't ever be called, so providing default values is enough. Dispatch function computes a value used by the multi-method to choose the implementation to invoke.
 
 ```
 DefMethod: (dispatchingVal: D,
@@ -28,7 +28,6 @@ Invoke: (arg: T) -> W
 ```
 
 Invoke the multi-method.
-
 
 ## Value based dispatching
 
@@ -134,7 +133,6 @@ public record ObservationValue(
 {"Integer": 25},
 {"String": "John"},
 {"Boolean": true},
-...
 ```
 
 ```csharp
