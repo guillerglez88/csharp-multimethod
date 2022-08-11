@@ -13,29 +13,21 @@ public class InheritanceCircle : InheritanceShape
     public double Radius { get; set; }
 }
 
-public class TaggedShape
-{
-    public string Tag { get; set; }
-    public Dictionary<string, object> Properties { get; set; }
-}
+public record TaggedShape(
+    string Tag,
+    Dictionary<string, object> Properties);
 
-public class Observation
-{
-    public string Code  { get; set; }
-    public ObservationValue Value { get; set; }
-}
+public record ObservationValue(
+    int? Integer = null,
+    string? String = null,
+    bool? Boolean = null,
+    DateTime? DateTime = null,
+    Period? Period = null);
 
-public class ObservationValue
-{
-    public int? Integer { get; set; }
-    public string? String { get; set; }
-    public bool? Boolean { get; set; }
-    public DateTime? DateTime { get; set; }
-    public Period? Period { get; set; }
-}
+public record Period(
+    DateTime? Start = null,
+    DateTime? End = null);
 
-public class Period
-{
-    public DateTime? Start { get; set; }
-    public DateTime? End { get; set; }
-}
+public record Constant(int Value);
+public record BinaryPlus(Constant Left, Constant Right);
+public record UnariInc(Constant Val);
