@@ -25,7 +25,30 @@ public class MultimethodsTests
 
         Assert.Equal(6, rectArea);
         Assert.Equal(12.57, Math.Round(circleArea, 2));
-    } 
+    }
+
+    [Fact]
+    public void CanUseMultipleDispatching()
+    {
+        var eats = DefMulti(
+            contract: ((Animal animal, Food food) pair) => default(bool),
+            dispatch: (pair) => (pair.animal.Kind, pair.food.Type));
+        eats = eats.DefMethod(("lion", FoodType.Meat), impl: (_) => true);
+        eats = eats.DefMethod(("cow", FoodType.Vegetable), impl: (_) => true);
+        eats = eats.DefMethod(("dog", FoodType.Meat), impl: (_) => true);
+        eats = eats.DefMethod(("dog", FoodType.Eggs), impl: (_) => true);
+        eats = eats.DefDefault((_,_) => false);
+
+        var lionEatsVegetable = eats.Invoke((new Animal(Kind: "lion"), new Food(Type: FoodType.Vegetable)));
+        var lionEatsMeat = eats.Invoke((new Animal(Kind: "lion"), new Food(Type: FoodType.Meat)));
+        var dogEatsEggs = eats.Invoke((new Animal(Kind: "dog"), new Food(Type: FoodType.Eggs)));
+        var cowEatsVegetable = eats.Invoke((new Animal(Kind: "cow"), new Food(Type: FoodType.Vegetable)));
+
+        Assert.False(lionEatsVegetable);
+        Assert.True(lionEatsMeat);
+        Assert.True(dogEatsEggs);
+        Assert.True(cowEatsVegetable);
+    }
 
     [Fact]
     public void CanUseTypeBasedMulti()
