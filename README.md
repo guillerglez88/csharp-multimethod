@@ -5,14 +5,14 @@ Exploring clojure multimethod from c#
 
 ```
 DefMulti: (contract: (T) -> W,
-		   dispatch: (T) -> D) -> Multi
+           dispatch: (T) -> D) -> Multi
 ```
 
 Define a multi-method, should provide contract and dispatch. Contract should be a sample function, usefull for defining the signature of the multi-method, it is not necesary to provide real computation for this function, so providing default values is not needed. Dispatch function computes a value used by the multi-method to choose the implementation to invoke.
 
 ```
 DefMethod: (dispatchingVal: D,
-			impl: (T) -> W) -> Multi
+            impl: (T) -> W) -> Multi
 ```
 
 Extends multi-method with specific implementation for dispatchingVal.
