@@ -85,7 +85,7 @@ public class MultimethodsTests
 
         var strHt = stringifyObs.Invoke(new ( Integer: 172 ));
         var strSmokes = stringifyObs.Invoke(new ( Boolean: false ));
-        var strCoB = stringifyObs.Invoke(new ( String: "Cuba" ));
+        var strCoB = stringifyObs.Invoke(new ( String: "John" ));
         var strDoB = stringifyObs.Invoke(new ( DateTime: new DateTime(1988, 4, 18) ));
         var strValidity = stringifyObs.Invoke(new (
             Period: new ( 
@@ -94,7 +94,7 @@ public class MultimethodsTests
 
         Assert.Equal("172", strHt);
         Assert.Equal("NO", strSmokes);
-        Assert.Equal("Cuba", strCoB);
+        Assert.Equal("John", strCoB);
         Assert.Equal("4/18/1988 📅", strDoB);
         Assert.Equal("[2/14/2022 - 2/14/2023]", strValidity);
     }
@@ -110,7 +110,7 @@ public class MultimethodsTests
         eval = eval.DefMethod(
             impl: (BinaryPlus plus) => new Constant(eval.Invoke(plus.Left).Value + eval.Invoke(plus.Right).Value));
         eval = eval.DefMethod(
-            impl: (UnariInc inc) => eval.Invoke(new BinaryPlus(
+            impl: (UnaryInc inc) => eval.Invoke(new BinaryPlus(
                 Left: inc.Val,
                 Right: new Constant(Value: 1))));
 
@@ -122,12 +122,12 @@ public class MultimethodsTests
         stringify = stringify.DefMethod(
             impl: (BinaryPlus plus) => $"{stringify.Invoke(plus.Left)} + {stringify.Invoke(plus.Right)}");
         stringify = stringify.DefMethod(
-            impl: (UnariInc inc) => $"{stringify.Invoke(inc.Val)}++");
+            impl: (UnaryInc inc) => $"{stringify.Invoke(inc.Val)}++");
 
         var addition = new BinaryPlus(
             Left: new Constant(2),
             Right: new Constant(3));
-        var increment = new UnariInc(Val: new Constant(Value: 6));
+        var increment = new UnaryInc(Val: new Constant(Value: 6));
 
         var addResult = eval.Invoke(addition);
         var incResult = eval.Invoke(increment);

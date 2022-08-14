@@ -8,7 +8,7 @@ DefMulti: (contract: (T) -> W,
            dispatch: (T) -> D) -> Multi
 ```
 
-Define a multi-method, should provide contract and dispatch. Contract should be a sample function, usefull for defining the signature of the multi-method, it is not necesary to implement anithing for this function since it won't ever be called, so providing default values is enough. Dispatch function computes a value used by the multi-method to choose the implementation to invoke.
+Define a multi-method, should provide contract and dispatch. Contract should be a sample function, useful for defining the signature of the multi-method, it is not necessary to implement anything for this function since it won't ever be called, so providing default values is enough. Dispatch function computes a value used by the multi-method to choose the implementation to invoke.
 
 ```
 DefMethod: (dispatchingVal: D,
@@ -21,7 +21,7 @@ Extends multi-method with specific implementation for dispatchingVal.
 DefDefault: (impl: (dispatchingVal: D, arg: T) -> W) -> Multi
 ```
 
-Provide a default implementation for handling argument when no accurrate implementation is found for the specific `dispatchingVal`.
+Provide a default implementation for handling argument when no accurate implementation is found for the specific `dispatchingVal`.
 
 ```
 Invoke: (arg: T) -> W
@@ -56,7 +56,7 @@ var circleArea = area.Invoke(new TaggedShape(
 
 ## Type based dispatching
 
-Dispatching on class type, same as inheritance polimorphysm. Multi-method will choose the implementation based on runtime type of argument.
+Dispatching on class type, same as inheritance polymorphism. Multi-method will choose the implementation based on runtime type of argument.
 
 ```csharp
 var area = DefMulti(
@@ -76,7 +76,7 @@ var circleArea = area.Invoke(new InheritanceCircle { Radius = 2 }); // => ~12.57
 ```csharp
 public record Constant(int Value);
 public record BinaryPlus(Constant Left, Constant Right);
-public record UnariInc(Constant Val);
+public record UnaryInc(Constant Val);
 ```
 
 ```csharp
@@ -88,7 +88,7 @@ eval = eval.DefMethod(
 eval = eval.DefMethod(
 	impl: (BinaryPlus plus) => new Constant(eval.Invoke(plus.Left).Value + eval.Invoke(plus.Right).Value));
 eval = eval.DefMethod(
-	impl: (UnariInc inc) => eval.Invoke(new BinaryPlus(
+	impl: (UnaryInc inc) => eval.Invoke(new BinaryPlus(
 		Left: inc.Val,
 		Right: new Constant(Value: 1))));
 
@@ -105,7 +105,7 @@ stringify = stringify.DefMethod(
 var addition = new BinaryPlus(
 	Left: new Constant(2),
 	Right: new Constant(3));
-var increment = new UnariInc(
+var increment = new UnaryInc(
 	Val: new Constant(Value: 6));
 
 var addResult = eval.Invoke(addition); // => 5
@@ -118,7 +118,7 @@ The previous example is also an example of solving the expression problem with m
 
 ## Property based dispatching
 
-Sometimes you have an object representing a polimorphic value, wich can have only one property defined of multiple possible properties, see the example bellow. In this case it is usefull to dispatch on presence of value for any property.
+Sometimes you have an object representing a polymorphic value, which can have only one property defined of multiple possible properties, see the example bellow. In this case it is useful to dispatch on presence of value for any property.
 
 ```csharp
 public record ObservationValue(
@@ -152,7 +152,7 @@ stringifyObs = stringifyObs.DefMethod(nameof(ObservationValue.Period),
 
 var strHt = stringifyObs.Invoke(new ( Integer: 172 )); // => "172"
 var strSmokes = stringifyObs.Invoke(new ( Boolean: false )); // => "NO"
-var strCoB = stringifyObs.Invoke(new ( String: "Cuba" )); // => "Cuba"
+var strCoB = stringifyObs.Invoke(new ( String: "John" )); // => "John"
 var strDoB = stringifyObs.Invoke(new ( DateTime: new DateTime(1988, 4, 18) )); // => "4/18/1988 📅"
 var strValidity = stringifyObs.Invoke(new (
 	Period: new ( 
@@ -162,7 +162,7 @@ var strValidity = stringifyObs.Invoke(new (
 
 ## Multiple dispatching
 
-Can be achieved by using tuples or any compount type you like, see the example below.
+Can be achieved by using tuples or any compound type you prefer, see the example below.
 
 ```csharp
 var eats = DefMulti(

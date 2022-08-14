@@ -26,7 +26,7 @@ public record Period(
 
 public record Constant(int Value);
 public record BinaryPlus(Constant Left, Constant Right);
-public record UnariInc(Constant Val);
+public record UnaryInc(Constant Val);
 
 public record Animal(string Kind);
 public record Food(FoodType Type);
