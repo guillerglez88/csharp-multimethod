@@ -22,9 +22,14 @@ public static class PropBasedMultiExtensions
         return multi.DefMethod(prop, (arg) => impl(arg));
     }
 
-    public static Func<T, PropertyInfo?> DispatchByProp<T>()
+    public static Func<T, PropertyInfo?> DispatchByProp<T>(
+        string[] ignoreProps = null,
+        string[] interestProps = null)
     {
-        var props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+        var props = typeof(T)
+            .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+            .Where(prop => !(ignoreProps ?? Enumerable.Empty<string>()).Contains(prop.Name)
+                && (interestProps ?? new[] { prop.Name }).Contains(prop.Name));
 
         return (arg) => props.FirstOrDefault(prop => prop.GetValue(arg) != null);
     }
