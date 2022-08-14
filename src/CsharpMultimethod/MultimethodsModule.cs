@@ -3,20 +3,20 @@
 public static class MultimethodsModule
 {
     public static Multi<T, D, W> DefMulti<T, D, W>(
-        Func<T, D> dispatch, 
+        Func<T, D> dispatch,
         Func<D, D, bool>? matches = null)
         => new Multi<T, D, W>(
             Dispatch: (args) => dispatch(args),
             Matches: matches ?? new Func<D, D, bool>((d1, d2) => Equals(d1, d2)),
             Methods: Enumerable.Empty<(D, Func<T, W>)>(),
-            Default: (dispatchingVal, _) => { throw new NotImplementedException($"Implementation not found for: {dispatchingVal}"); });
+            Default: ThrowNotImplemented<D, T, W>); 
 
     public static Multi<T, D, W> DefMulti<T, D, W>(
         Func<T, W> contract,
         Func<T, D> dispatch,
         Func<D, D, bool>? matches = null)
         => DefMulti<T, D, W>(dispatch, matches ?? new Func<D, D, bool>((d1, d2) => Equals(d1, d2)));
-    
+
     public static Multi<T, D, W> DefMethod<T, D, W>(
         this Multi<T, D, W> multi,
         D dispatchingVal,
@@ -35,8 +35,11 @@ public static class MultimethodsModule
         return multi.Methods
             .Where(entry => multi.Matches(entry.key, dispatchingVal))
             .Select(entry => entry.method)
-            .Append((_) => multi.Default(dispatchingVal, arg))
+            .Append((arg) => multi.Default(dispatchingVal, arg))
             .First()
             .Invoke(arg);
     }
+
+    public static W ThrowNotImplemented<D, T, W>(D dispatchingVal, T arg)
+        => throw new NotImplementedException($"Implementation not found for: {dispatchingVal}");
 }

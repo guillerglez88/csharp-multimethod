@@ -9,7 +9,8 @@ public static class PropBasedMultiExtensions
     public static Multi<T, PropertyInfo?, W> DefMulti<T, W>(
         Func<T, W> contract,
         Func<T, PropertyInfo?> dispatch)
-        => DefMulti<T, PropertyInfo?, W>(contract, dispatch, (p1, p2) => p1?.Name == p2?.Name);
+        => DefMulti<T, PropertyInfo?, W>(contract, dispatch, 
+            matches: (p1, p2) => p1?.Name == p2?.Name);
 
     public static Multi<T, PropertyInfo?, W> DefMethod<T, W>(
         this Multi<T, PropertyInfo?, W> multi,
