@@ -1,5 +1,5 @@
 using System.Globalization;
-using static CsharpMultimethod.MultimethodsModule;
+using static CsharpMultimethod.Multi;
 using static CsharpMultimethod.TypeBasedMultiExtensions;
 using static CsharpMultimethod.PropBasedMultiExtensions;
 
@@ -13,8 +13,9 @@ public class MultimethodsTests
         var area = DefMulti(
             contract: (TaggedShape shape) => default(double),
             dispatch: (shape) => shape.Tag);
-        area = area.DefMethod("rect", (rect) => (double)rect.Properties["Wd"] * (double)rect.Properties["Ht"]);
-        area = area.DefMethod("circle", (circle) => Math.PI * ((double)circle.Properties["Radius"] * (double)circle.Properties["Radius"]));
+
+        area.DefMethod("rect", (rect) => (double)rect.Properties["Wd"] * (double)rect.Properties["Ht"]);
+        area.DefMethod("circle", (circle) => Math.PI * ((double)circle.Properties["Radius"] * (double)circle.Properties["Radius"]));
 
         var rectArea = area.Invoke(new TaggedShape(
             Tag: "rect",
@@ -33,11 +34,12 @@ public class MultimethodsTests
         var eats = DefMulti(
             contract: ((Animal animal, Food food) pair) => default(bool),
             dispatch: (pair) => (pair.animal.Kind, pair.food.Type));
-        eats = eats.DefMethod(("lion", FoodType.Meat), impl: (_) => true);
-        eats = eats.DefMethod(("cow", FoodType.Vegetable), impl: (_) => true);
-        eats = eats.DefMethod(("dog", FoodType.Meat), impl: (_) => true);
-        eats = eats.DefMethod(("dog", FoodType.Eggs), impl: (_) => true);
-        eats = eats.DefDefault((_,_) => false);
+
+        eats.DefMethod(("lion", FoodType.Meat), impl: (_) => true);
+        eats.DefMethod(("cow", FoodType.Vegetable), impl: (_) => true);
+        eats.DefMethod(("dog", FoodType.Meat), impl: (_) => true);
+        eats.DefMethod(("dog", FoodType.Eggs), impl: (_) => true);
+        eats.DefDefault((_,_) => false);
 
         var lionEatsVegetable = eats.Invoke((new Animal(Kind: "lion"), new Food(Type: FoodType.Vegetable)));
         var lionEatsMeat = eats.Invoke((new Animal(Kind: "lion"), new Food(Type: FoodType.Meat)));
@@ -56,8 +58,9 @@ public class MultimethodsTests
         var area = DefMulti(
             contract: (InheritanceShape shape) => default(double),
             dispatch: DispatchByType<InheritanceShape>());
-        area = area.DefMethod((InheritanceRect rect) => rect.Wd * rect.Ht);
-        area = area.DefMethod((InheritanceCircle circle) => Math.PI * (circle.Radius * circle.Radius));
+
+        area.DefMethod((InheritanceRect rect) => rect.Wd * rect.Ht);
+        area.DefMethod((InheritanceCircle circle) => Math.PI * (circle.Radius * circle.Radius));
 
         var rectArea = area.Invoke(new InheritanceRect { Wd = 2, Ht = 3 });
         var circleArea = area.Invoke(new InheritanceCircle { Radius = 2 });
@@ -72,15 +75,16 @@ public class MultimethodsTests
         var stringifyObs = DefMulti(
             contract: (ObservationValue obsVal) => default(string),
             dispatch: DispatchByProp<ObservationValue>());
-        stringifyObs = stringifyObs.DefMethod(nameof(ObservationValue.Integer),
+
+        stringifyObs.DefMethod(nameof(ObservationValue.Integer),
             impl: (intVal) => $"{intVal.Integer}");
-        stringifyObs = stringifyObs.DefMethod(nameof(ObservationValue.String),
+        stringifyObs.DefMethod(nameof(ObservationValue.String),
             impl: (strVal) => $"{strVal.String}");
-        stringifyObs = stringifyObs.DefMethod(nameof(ObservationValue.Boolean),
+        stringifyObs.DefMethod(nameof(ObservationValue.Boolean),
             impl: (boolVal) => $"{(boolVal.Boolean == true ? "YES" : "NO")}");
-        stringifyObs = stringifyObs.DefMethod(nameof(ObservationValue.DateTime),
+        stringifyObs.DefMethod(nameof(ObservationValue.DateTime),
             impl: (dateVal) => $"{dateVal.DateTime?.ToString("d")} 📅");
-        stringifyObs = stringifyObs.DefMethod(nameof(ObservationValue.Period),
+        stringifyObs.DefMethod(nameof(ObservationValue.Period),
             impl: (periodVal) => $"[{periodVal.Period?.Start?.ToString("d")} - {periodVal.Period?.End?.ToString("d")}]");
 
         var strHt = stringifyObs.Invoke(new ( Integer: 172 ));
@@ -105,11 +109,12 @@ public class MultimethodsTests
         var eval = DefMulti(
             contract: (dynamic exp) => default(Constant),
             dispatch: DispatchByType<dynamic>());
-        eval = eval.DefMethod(
+
+        eval.DefMethod(
             impl: (Constant constant) => constant);
-        eval = eval.DefMethod(
+        eval.DefMethod(
             impl: (BinaryPlus plus) => new Constant(eval.Invoke(plus.Left).Value + eval.Invoke(plus.Right).Value));
-        eval = eval.DefMethod(
+        eval.DefMethod(
             impl: (UnaryInc inc) => eval.Invoke(new BinaryPlus(
                 Left: inc.Val,
                 Right: new Constant(Value: 1))));
@@ -117,11 +122,12 @@ public class MultimethodsTests
         var stringify = DefMulti(
             contract: (dynamic exp) => default(string),
             dispatch: DispatchByType<dynamic>());
-        stringify = stringify.DefMethod(
+
+        stringify.DefMethod(
             impl: (Constant constant) => $"{constant.Value}");
-        stringify = stringify.DefMethod(
+        stringify.DefMethod(
             impl: (BinaryPlus plus) => $"{stringify.Invoke(plus.Left)} + {stringify.Invoke(plus.Right)}");
-        stringify = stringify.DefMethod(
+        stringify.DefMethod(
             impl: (UnaryInc inc) => $"{stringify.Invoke(inc.Val)}++");
 
         var addition = new BinaryPlus(

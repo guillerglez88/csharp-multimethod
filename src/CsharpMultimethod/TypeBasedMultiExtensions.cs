@@ -1,4 +1,4 @@
-using static CsharpMultimethod.MultimethodsModule;
+using static CsharpMultimethod.Multi;
 
 namespace CsharpMultimethod;
 

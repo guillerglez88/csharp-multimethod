@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
 using System.Reflection;
-using static CsharpMultimethod.MultimethodsModule;
+using static CsharpMultimethod.Multi;
 
 namespace CsharpMultimethod;
 
