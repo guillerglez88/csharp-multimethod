@@ -41,17 +41,15 @@ public record TaggedShape(
 var area = DefMulti(
 	contract: (TaggedShape shape) => default(double),
 	dispatch: (shape) => shape.Tag);
-area = area.DefMethod("rect", 
-	impl: (rect) => (double)rect.Props["Wd"] * (double)rect.Props["Ht"]);
-area = area.DefMethod("circle", 
-	impl: (circle) => Math.PI * ((double)circle.Props["Radius"] * (double)circle.Props["Radius"]));
 
-var rectArea = area.Invoke(new TaggedShape(
-	Tag: "rect",
-	Properties: new() { ["Wd"] = 2.0, ["Ht"] = 3.0 })); // => 6
-var circleArea = area.Invoke(new TaggedShape(
-	Tag: "circle",
-	Properties: new() { ["Radius"] = 2.0 })); // => ~12.57
+area.DefMethod("rect", (rect) => (double)rect.Props["Wd"] * (double)rect.Props["Ht"]);
+area.DefMethod("circle", (circle) => Math.PI * ((double)circle.Props["Radius"] * (double)circle.Props["Radius"]));
+
+var rect = new TaggedShape("rect", new() { ["Wd"] = 2.0, ["Ht"] = 3.0 });
+var circle = new TaggedShape("circle", new() { ["Radius"] = 2.0 });
+
+var rectArea = area.Invoke(rect); // => 6
+var circleArea = area.Invoke(circle); // => ~12.57
 ```
 
 ## Type based dispatching
@@ -62,13 +60,15 @@ Dispatching on class type, same as inheritance polymorphism. Multi-method will c
 var area = DefMulti(
 	contract: (InheritanceShape shape) => default(double),
 	dispatch: DispatchByType<InheritanceShape>());
-area = area.DefMethod(
-	impl: (InheritanceRect rect) => rect.Wd * rect.Ht);
-area = area.DefMethod(
-	impl: (InheritanceCircle circle) => Math.PI * (circle.Radius * circle.Radius));
 
-var rectArea = area.Invoke(new InheritanceRect { Wd = 2, Ht = 3 }); // => 6
-var circleArea = area.Invoke(new InheritanceCircle { Radius = 2 }); // => ~12.57
+area.DefMethod((InheritanceRect rect) => rect.Wd * rect.Ht);
+area.DefMethod((InheritanceCircle circle) => Math.PI * (circle.Radius * circle.Radius));
+
+var rect = new InheritanceRect { Wd = 2, Ht = 3 };
+var circle = new InheritanceCircle { Radius = 2 };
+
+var rectArea = area.Invoke(rect); // => 6
+var circleArea = area.Invoke(circle); // => ~12.57
 ```
 
 ## Type based without a base type (dynamic)
@@ -83,30 +83,23 @@ public record UnaryInc(Constant Val);
 var eval = DefMulti(
 	contract: (dynamic exp) => default(Constant),
 	dispatch: DispatchByType<dynamic>());
-eval = eval.DefMethod(
-	impl: (Constant constant) => constant);
-eval = eval.DefMethod(
-	impl: (BinaryPlus plus) => new Constant(eval.Invoke(plus.Left).Value + eval.Invoke(plus.Right).Value));
-eval = eval.DefMethod(
-	impl: (UnaryInc inc) => eval.Invoke(new BinaryPlus(
-		Left: inc.Val,
-		Right: new Constant(Value: 1))));
 
 var stringify = DefMulti(
 	contract: (dynamic exp) => default(string),
 	dispatch: DispatchByType<dynamic>());
-stringify = stringify.DefMethod(
-	impl: (Constant constant) => $"{constant.Value}");
-stringify = stringify.DefMethod(
-	impl: (BinaryPlus plus) => $"{stringify.Invoke(plus.Left)} + {stringify.Invoke(plus.Right)}");
-stringify = stringify.DefMethod(
-	impl: (UnariInc inc) => $"{stringify.Invoke(inc.Val)}++");
 
-var addition = new BinaryPlus(
-	Left: new Constant(2),
-	Right: new Constant(3));
-var increment = new UnaryInc(
-	Val: new Constant(Value: 6));
+eval.DefMethod((Constant constant) => constant);
+eval.DefMethod((BinaryPlus plus) => new Constant(
+	eval.Invoke(plus.Left).Value + 
+	eval.Invoke(plus.Right).Value));
+eval.DefMethod((UnaryInc inc) => eval.Invoke(new BinaryPlus(inc.Val, new Constant(1))));
+
+stringify.DefMethod((Constant constant) => $"{constant.Value}");
+stringify.DefMethod((BinaryPlus plus) => $"{stringify.Invoke(plus.Left)} + {stringify.Invoke(plus.Right)}");
+stringify.DefMethod((UnaryInc inc) => $"{stringify.Invoke(inc.Val)}++");
+
+var addition = new BinaryPlus(new Constant(2), new Constant(3));
+var increment = new UnaryInc(new Constant(6));
 
 var addResult = eval.Invoke(addition); // => 5
 var incResult = eval.Invoke(increment); // => 7
@@ -139,16 +132,11 @@ public record ObservationValue(
 var stringifyObs = DefMulti(
 	contract: (ObservationValue obsVal) => default(string),
 	dispatch: DispatchByProp<ObservationValue>());
-stringifyObs = stringifyObs.DefMethod(nameof(ObservationValue.Integer),
-	impl: (intVal) => $"{intVal.Integer}");
-stringifyObs = stringifyObs.DefMethod(nameof(ObservationValue.String),
-	impl: (strVal) => $"{strVal.String}");
-stringifyObs = stringifyObs.DefMethod(nameof(ObservationValue.Boolean),
-	impl: (boolVal) => $"{(boolVal.Boolean == true ? "YES" : "NO")}");
-stringifyObs = stringifyObs.DefMethod(nameof(ObservationValue.DateTime),
-	impl: (dateVal) => $"{dateVal.DateTime?.ToString("d")} 📅");
-stringifyObs = stringifyObs.DefMethod(nameof(ObservationValue.Period),
-	impl: (periodVal) => $"[{periodVal.Period?.Start?.ToString("d")} - {periodVal.Period?.End?.ToString("d")}]");
+stringifyObs.DefMethod(nameof(ObservationValue.Integer), (intVal) => $"{intVal.Integer}");
+stringifyObs.DefMethod(nameof(ObservationValue.String), (strVal) => $"{strVal.String}");
+stringifyObs.DefMethod(nameof(ObservationValue.Boolean), (boolVal) => $"{(boolVal.Boolean == true ? "YES" : "NO")}");
+stringifyObs.DefMethod(nameof(ObservationValue.DateTime), (dateVal) => $"{dateVal.DateTime?.ToString("d")} 📅");
+stringifyObs.DefMethod(nameof(ObservationValue.Period), (periodVal) => $"[{periodVal.Period?.Start?.ToString("d")} - {periodVal.Period?.End?.ToString("d")}]");
 
 var strHt = stringifyObs.Invoke(new ( Integer: 172 )); // => "172"
 var strSmokes = stringifyObs.Invoke(new ( Boolean: false )); // => "NO"
@@ -168,11 +156,12 @@ Can be achieved by using tuples or any compound type you prefer, see the example
 var eats = DefMulti(
 	contract: ((Animal animal, Food food) pair) => default(bool),
 	dispatch: (pair) => (pair.animal.Kind, pair.food.Type));
-eats = eats.DefMethod(("lion", FoodType.Meat), impl: (_) => true);
-eats = eats.DefMethod(("cow", FoodType.Vegetable), impl: (_) => true);
-eats = eats.DefMethod(("dog", FoodType.Meat), impl: (_) => true);
-eats = eats.DefMethod(("dog", FoodType.Eggs), impl: (_) => true);
-eats = eats.DefDefault((_,_) => false);
+
+eats.DefMethod(("lion", FoodType.Meat), impl: (_) => true);
+eats.DefMethod(("cow", FoodType.Vegetable), impl: (_) => true);
+eats.DefMethod(("dog", FoodType.Meat), impl: (_) => true);
+eats.DefMethod(("dog", FoodType.Eggs), impl: (_) => true);
+eats.DefDefault((_,_) => false);
 
 var lionEatsVegetable = eats.Invoke((
 	animal: new Animal(Kind: "lion"), 
